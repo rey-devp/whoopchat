@@ -14,11 +14,13 @@ const ChatWindow = ({ chat, messages, onSendMessage }) => {
   }, [messages]);
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="p-4 border-b">
+    <div className="flex flex-col h-full bg-gradient-to-br from-black via-gray-900 to-gray-800 text-white">
+      {/* Header */}
+      <div className="p-4 border-b border-gray-700 bg-white/5 backdrop-blur-md">
         <h2 className="text-xl font-semibold">{chat?.name}</h2>
       </div>
 
+      {/* Messages */}
       <div className="flex-1 overflow-y-auto p-4">
         {messages.map((message) => (
           <div
@@ -28,16 +30,16 @@ const ChatWindow = ({ chat, messages, onSendMessage }) => {
             }`}
           >
             <div
-              className={`max-w-[70%] p-3 rounded-lg ${
+              className={`max-w-[70%] p-3 rounded-2xl shadow-md ${
                 message.isMine
-                  ? "bg-blue-500 text-white"
-                  : "bg-gray-100 text-gray-800"
+                  ? "bg-blue-600 text-white"
+                  : "bg-white/10 text-gray-200"
               }`}
             >
               {message.content}
               <div
                 className={`text-xs mt-1 ${
-                  message.isMine ? "text-blue-100" : "text-gray-500"
+                  message.isMine ? "text-blue-200" : "text-gray-400"
                 }`}
               >
                 {new Date(message.timestamp).toLocaleTimeString()}
@@ -48,7 +50,8 @@ const ChatWindow = ({ chat, messages, onSendMessage }) => {
         <div ref={messagesEndRef} />
       </div>
 
-      <div className="p-4 border-t">
+      {/* Input */}
+      <div className="p-4 border-t border-gray-700 bg-white/5 backdrop-blur-md">
         <MessageInput
           onSendMessage={(content) => {
             if (!content.trim()) {

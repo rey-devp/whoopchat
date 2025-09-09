@@ -3,6 +3,15 @@ import * as authApi from "../api/auth";
 import { getToken, setToken, removeToken } from "../services/authService";
 import { AuthContext } from "./authContext";
 
+// Helper buat decode JWT payload
+const parseJwt = (token) => {
+  try {
+    return JSON.parse(atob(token.split(".")[1]));
+  } catch {
+    return {};
+  }
+};
+
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -12,6 +21,7 @@ export const AuthProvider = ({ children }) => {
       const token = getToken();
       if (token) {
         try {
+          // kalau ada endpoint get profile
           const userData = await authApi.getCurrentUser();
           setUser(userData);
         } catch (err) {
@@ -27,20 +37,39 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (credentials) => {
     const response = await authApi.login(credentials);
-    setToken(response.token);
-    setUser(response.user);
-    return response;
+
+    const token = response?.data?.token; // ✅ backend kirim di data.token
+    if (!token) throw new Error("Login failed: no token returned");
+
+    setToken(token);
+
+    // isi user minimal dari JWT payload
+    const payload = parseJwt(token);
+    setUser({ id: payload.user_id || null });
+
+    return { token };
   };
 
   const register = async (userData) => {
     const response = await authApi.register(userData);
-    setToken(response.token);
-    setUser(response.user);
-    return response;
+
+    const token = response?.data?.token;
+    if (!token) throw new Error("Register failed: no token returned");
+
+    setToken(token);
+
+    const payload = parseJwt(token);
+    setUser({ id: payload.user_id || null });
+
+    return { token };
   };
 
   const logout = async () => {
-    await authApi.logout();
+    try {
+      await authApi.logout();
+    } catch {
+      console.warn("Logout API failed, but clearing local token anyway");
+    }
     removeToken();
     setUser(null);
   };

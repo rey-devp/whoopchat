@@ -11,18 +11,32 @@ const Login = () => {
     password: "",
   });
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+
   const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (loading) return;
+
     try {
+      setLoading(true);
       const toastId = toast.loading("Logging in...");
-      await login(credentials);
-      toast.success("Logged in successfully!", { id: toastId });
-      navigate("/");
+
+      const response = await login(credentials);
+
+      if (response?.token) {
+        toast.success("Logged in successfully!", { id: toastId });
+        navigate("/home");
+      } else {
+        throw new Error("Login failed: no token returned");
+      }
     } catch (err) {
+      console.error("Login error:", err);
       toast.error(err.message || "Invalid email or password");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -71,7 +85,7 @@ const Login = () => {
               placeholder="Email address"
             />
 
-            {/* Password with toggle */}
+            {/* Password */}
             <div className="relative">
               <input
                 id="password"
@@ -95,12 +109,17 @@ const Login = () => {
 
           {/* Button */}
           <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            whileHover={{ scale: loading ? 1 : 1.05 }}
+            whileTap={{ scale: loading ? 1 : 0.95 }}
+            disabled={loading}
             type="submit"
-            className="w-full py-2 px-4 rounded-lg text-white font-semibold bg-indigo-600 hover:bg-indigo-700 transition"
+            className={`w-full py-2 px-4 rounded-lg text-white font-semibold transition ${
+              loading
+                ? "bg-gray-600 cursor-not-allowed"
+                : "bg-indigo-600 hover:bg-indigo-700"
+            }`}
           >
-            Sign In
+            {loading ? "Signing In..." : "Sign In"}
           </motion.button>
         </form>
 

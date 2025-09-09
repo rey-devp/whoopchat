@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import ChatList from "../components/ChatList";
 import { useChat } from "../context/useChat";
 import toast from "react-hot-toast";
+import { motion } from "framer-motion";
 
 const Home = () => {
   const { chats, setActiveChat } = useChat();
@@ -19,16 +20,29 @@ const Home = () => {
   };
 
   return (
-    <div className="flex h-screen bg-gray-100">
-      <div className="w-96">
+    <div className="flex h-screen bg-gradient-to-br from-black via-gray-900 to-gray-800 text-white">
+      {/* Sidebar / Chat List */}
+      <motion.div
+        initial={{ opacity: 0, x: -50 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
+        className="w-96 border-r border-gray-700 bg-white/5 backdrop-blur-md"
+      >
         <ChatList chats={chats} onChatSelect={handleChatSelect} />
-      </div>
-      <div className="flex-1 flex items-center justify-center">
-        <div className="text-center text-gray-500">
-          <h2 className="text-2xl font-semibold mb-2">Welcome to WhoopChat</h2>
-          <p>Select a chat to start messaging</p>
+      </motion.div>
+
+      {/* Main Content */}
+      <motion.div
+        initial={{ opacity: 0, y: 40 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: "easeOut", delay: 0.2 }}
+        className="flex-1 flex items-center justify-center"
+      >
+        <div className="text-center bg-white/5 backdrop-blur-md rounded-2xl p-10 shadow-lg border border-gray-700">
+          <h2 className="text-2xl font-bold mb-2">Welcome to WhoopChat 👋</h2>
+          <p className="text-gray-300">Select a chat to start messaging</p>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 };

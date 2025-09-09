@@ -6,35 +6,23 @@ export const useFormValidation = () => {
 
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!email) {
-      toast.error("Email is required");
-      return false;
-    }
-    if (!emailRegex.test(email)) {
-      toast.error("Invalid email format");
-      return false;
-    }
-    return true;
+    if (!email) return "Email is required";
+    if (!emailRegex.test(email)) return "Invalid email format";
+    return null;
   };
 
   const validatePassword = (password, minLength = 6) => {
-    if (!password) {
-      toast.error("Password is required");
-      return false;
-    }
-    if (password.length < minLength) {
-      toast.error(`Password must be at least ${minLength} characters`);
-      return false;
-    }
-    return true;
+    if (!password) return "Password is required";
+    if (password.length < minLength)
+      return `Password must be at least ${minLength} characters`;
+    return null;
   };
 
   const validateRequired = (value, fieldName) => {
     if (!value || (typeof value === "string" && !value.trim())) {
-      toast.error(`${fieldName} is required`);
-      return false;
+      return `${fieldName} is required`;
     }
-    return true;
+    return null;
   };
 
   const validateForm = (values, validations) => {
@@ -44,16 +32,22 @@ export const useFormValidation = () => {
     for (const [field, rules] of Object.entries(validations)) {
       const value = values[field];
 
-      if (rules.required && !validateRequired(value, rules.label || field)) {
-        newErrors[field] = "This field is required";
-        isValid = false;
-        continue;
+      if (rules.required) {
+        const err = validateRequired(value, rules.label || field);
+        if (err) {
+          newErrors[field] = err;
+          isValid = false;
+          continue;
+        }
       }
 
-      if (rules.email && !validateEmail(value)) {
-        newErrors[field] = "Invalid email format";
-        isValid = false;
-        continue;
+      if (rules.email) {
+        const err = validateEmail(value);
+        if (err) {
+          newErrors[field] = err;
+          isValid = false;
+          continue;
+        }
       }
 
       if (rules.minLength && value.length < rules.minLength) {
@@ -70,6 +64,12 @@ export const useFormValidation = () => {
     }
 
     setErrors(newErrors);
+
+    // ✅ Biar gak spam, kasih 1 toast general kalau ada error
+    if (!isValid) {
+      toast.error("Please fix the errors in the form");
+    }
+
     return isValid;
   };
 

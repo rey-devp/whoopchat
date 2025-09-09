@@ -18,12 +18,12 @@ const MessageInput = ({ onSendMessage }) => {
         value={message}
         onChange={(e) => setMessage(e.target.value)}
         placeholder="Type a message..."
-        className="flex-1 rounded-lg border p-2 focus:outline-none focus:border-blue-500"
+        className="flex-1 rounded-lg border border-gray-700 bg-white/5 text-white p-2 focus:outline-none focus:border-blue-500 placeholder-gray-400"
       />
       <button
         type="submit"
         disabled={!message.trim()}
-        className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 disabled:opacity-50"
+        className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition disabled:opacity-50"
       >
         Send
       </button>

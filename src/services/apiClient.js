@@ -1,5 +1,5 @@
 import axios from "axios";
-import { getToken } from "./authService";
+import { getToken, isValidToken, removeToken } from "./authService";
 
 const BASE_URL = "http://localhost:8080";
 
@@ -10,22 +10,32 @@ const apiClient = axios.create({
   },
 });
 
-// Add token to requests if it exists
+// Interceptor request → tambahin token kalau valid
 apiClient.interceptors.request.use((config) => {
   const token = getToken();
-  if (token) {
+
+  if (token && isValidToken(token)) {
     config.headers.Authorization = `Bearer ${token}`;
+  } else if (token && !isValidToken(token)) {
+    // Token expired → clear
+    console.warn("⏰ Token expired, removing...");
+    removeToken();
   }
+
   return config;
 });
 
-// Handle response errors
+// Interceptor response → handle error global
 apiClient.interceptors.response.use(
   (response) => response.data,
   (error) => {
     if (error.response?.status === 401) {
-      // Handle unauthorized error (e.g., redirect to login)
-      window.location.href = "/login";
+      // Unauthorized → clear token & redirect
+      console.error("❌ Unauthorized, redirecting to login...");
+      removeToken();
+      if (window.location.pathname !== "/login") {
+        window.location.href = "/login";
+      }
     }
     return Promise.reject(error.response?.data || error.message);
   }
